@@ -1,37 +1,39 @@
 import { useState, useRef, useEffect } from "react";
 
-// ── Styles (unchanged from your original) ───────────────────────────────────────
-const styles = {
-  app: { minHeight: "100vh", background: "#0A0A0A", color: "#F0EDE6", fontFamily: "'Inter', system-ui, sans-serif", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px" },
-  logo: { fontFamily: "'Bebas Neue', system-ui, sans-serif", fontSize: "36px", letterSpacing: "4px", color: "#fff", marginBottom: "6px" },
-  logoAccent: { color: "#FF6B00" },
-  tagline: { fontSize: "13px", color: "#666", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "40px" },
-  card: { background: "#141414", border: "1px solid #2A2A2A", borderRadius: "16px", padding: "32px", width: "100%", maxWidth: "560px", marginBottom: "24px" },
-  label: { fontSize: "11px", fontWeight: "700", letterSpacing: "3px", textTransform: "uppercase", color: "#FF6B00", marginBottom: "10px", display: "block" },
-  input: { width: "100%", background: "#0A0A0A", border: "1px solid #2A2A2A", borderRadius: "8px", padding: "14px 16px", color: "#F0EDE6", fontSize: "15px", outline: "none", marginBottom: "12px", boxSizing: "border-box" },
-  btn: { width: "100%", background: "#FF6B00", color: "#fff", border: "none", borderRadius: "8px", padding: "14px", fontSize: "15px", fontWeight: "700", cursor: "pointer", letterSpacing: "0.5px", transition: "background 0.2s" },
-  btnDisabled: { background: "#3A2010", color: "#664020", cursor: "not-allowed" },
-  status: { fontSize: "13px", color: "#FF6B00", textAlign: "center", padding: "12px 0", minHeight: "20px" },
-  phoneWrap: { display: "flex", justifyContent: "center", margin: "0 auto 24px" },
-  phone: { width: "320px", background: "#1A1A1A", borderRadius: "40px", border: "2px solid #333", overflow: "hidden", boxShadow: "0 24px 60px rgba(255,107,0,0.15)", display: "flex", flexDirection: "column" },
-  phoneHeader: { background: "#0F0F0F", padding: "16px 20px 12px", borderBottom: "1px solid #2A2A2A", display: "flex", alignItems: "center", gap: "10px" },
-  phoneAvatar: { width: "36px", height: "36px", borderRadius: "50%", background: "#FF6B00", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700", color: "#fff", flexShrink: 0 },
-  phoneBizName: { fontSize: "14px", fontWeight: "600", color: "#fff" },
-  phoneBizSub: { fontSize: "11px", color: "#555" },
-  phoneDot: { width: "8px", height: "8px", borderRadius: "50%", background: "#22C55E", marginLeft: "auto" },
-  chatArea: { height: "380px", overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: "10px", background: "#0D0D0D" },
-  msgBot: { alignSelf: "flex-start", background: "#1A1A1A", border: "1px solid #242424", borderRadius: "12px 12px 12px 2px", padding: "10px 14px", fontSize: "13px", color: "#F0EDE6", maxWidth: "82%", lineHeight: "1.55" },
-  msgUser: { alignSelf: "flex-end", background: "#FF6B00", borderRadius: "12px 12px 2px 12px", padding: "10px 14px", fontSize: "13px", color: "#fff", maxWidth: "82%", lineHeight: "1.55" },
-  msgTime: { fontSize: "10px", color: "#444", marginTop: "4px" },
-  phoneInputRow: { display: "flex", gap: "8px", padding: "12px 14px", borderTop: "1px solid #1A1A1A", background: "#0F0F0F" },
-  phoneInput: { flex: 1, background: "#1A1A1A", border: "1px solid #242424", borderRadius: "20px", padding: "10px 14px", color: "#F0EDE6", fontSize: "13px", outline: "none" },
-  sendBtn: { background: "#FF6B00", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 },
-  poweredBy: { textAlign: "center", fontSize: "10px", color: "#333", padding: "8px", background: "#0A0A0A", letterSpacing: "1px", textTransform: "uppercase" },
-  sectionTitle: { fontFamily: "system-ui", fontSize: "13px", fontWeight: "700", color: "#FF6B00", letterSpacing: "3px", textTransform: "uppercase", marginBottom: "16px", textAlign: "center" },
-  bizInfoBox: { background: "#0F0F0F", border: "1px solid #1E1E1E", borderRadius: "8px", padding: "14px 16px", fontSize: "13px", color: "#888", lineHeight: "1.6", marginBottom: "16px", maxHeight: "120px", overflowY: "auto" },
+const S = {
+  app: { minHeight: "100vh", background: "#0A0A0A", display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 16px", fontFamily: "'Inter', sans-serif", color: "#fff" },
+  logo: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "42px", letterSpacing: "4px", color: "#fff", marginBottom: "4px" },
+  logoAccent: { color: "#FF6200" },
+  tagline: { fontSize: "12px", letterSpacing: "3px", color: "#888", textTransform: "uppercase", marginBottom: "40px" },
+  card: { background: "#111", border: "1px solid #222", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "420px", marginBottom: "20px" },
+  label: { fontSize: "11px", letterSpacing: "2px", color: "#FF6200", textTransform: "uppercase", fontWeight: "700", display: "block", marginBottom: "14px" },
+  input: { width: "100%", background: "#1a1a1a", border: "1px solid #333", borderRadius: "10px", padding: "14px 16px", color: "#fff", fontSize: "14px", outline: "none", marginBottom: "12px", fontFamily: "inherit" },
+  btn: { width: "100%", background: "#FF6200", border: "none", borderRadius: "10px", padding: "16px", color: "#fff", fontSize: "15px", fontWeight: "700", cursor: "pointer", letterSpacing: "0.5px" },
+  btnDisabled: { opacity: 0.5, cursor: "not-allowed" },
+  status: { fontSize: "13px", color: "#FF6200", textAlign: "center", marginTop: "12px", minHeight: "20px" },
+  sectionTitle: { fontSize: "11px", letterSpacing: "2px", color: "#FF6200", textTransform: "uppercase", fontWeight: "700", textAlign: "center", marginBottom: "16px" },
+  bizInfoBox: { background: "#0a0a0a", border: "1px solid #1E1E1E", borderRadius: "8px", padding: "12px 14px", fontSize: "13px", color: "#888", lineHeight: "1.6", marginBottom: "16px", maxHeight: "80px", overflow: "hidden" },
+  phoneWrap: { display: "flex", justifyContent: "center", marginBottom: "20px" },
+  phone: { width: "300px", height: "580px", background: "#1a1a1a", borderRadius: "40px", border: "8px solid #333", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.8)" },
+  phoneHeader: { background: "#111", padding: "14px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #222" },
+  phoneAvatar: { width: "36px", height: "36px", borderRadius: "50%", background: "#FF6200", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", fontWeight: "700", flexShrink: 0 },
+  phoneBizName: { fontSize: "14px", fontWeight: "600", color: "#fff", margin: 0 },
+  phoneBizSub: { fontSize: "11px", color: "#FF6200", margin: 0 },
+  phoneDot: { width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e", marginLeft: "auto" },
+  chatArea: { flex: 1, overflowY: "auto", padding: "12px", display: "flex", flexDirection: "column", gap: "8px" },
+  msgBot: { background: "#222", borderRadius: "12px 12px 12px 4px", padding: "10px 12px", fontSize: "13px", color: "#fff", maxWidth: "85%", alignSelf: "flex-start", lineHeight: "1.5" },
+  msgUser: { background: "#FF6200", borderRadius: "12px 12px 4px 12px", padding: "10px 12px", fontSize: "13px", color: "#fff", maxWidth: "85%", alignSelf: "flex-end", lineHeight: "1.5" },
+  msgTime: { fontSize: "10px", color: "#555", marginTop: "2px" },
+  phoneInputRow: { display: "flex", padding: "10px", gap: "8px", borderTop: "1px solid #222", background: "#111" },
+  phoneInput: { flex: 1, background: "#222", border: "1px solid #333", borderRadius: "20px", padding: "10px 14px", color: "#fff", fontSize: "13px", outline: "none", fontFamily: "inherit" },
+  sendBtn: { width: "36px", height: "36px", borderRadius: "50%", background: "#FF6200", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  poweredBy: { fontSize: "10px", color: "#333", textAlign: "center", padding: "6px", letterSpacing: "1px" },
+  resetBtn: { background: "transparent", border: "1px solid #2A2A2A", borderRadius: "10px", padding: "12px 24px", color: "#888", fontSize: "13px", cursor: "pointer", marginTop: "8px", width: "100%", maxWidth: "420px" },
+  ctaBox: { textAlign: "center", maxWidth: "360px", marginBottom: "16px" },
+  ctaBtn: { display: "inline-block", background: "#FF6200", color: "#fff", textDecoration: "none", padding: "14px 32px", borderRadius: "50px", fontWeight: "700", fontSize: "14px", letterSpacing: "0.5px", marginBottom: "16px" },
+  footer: { marginTop: "40px", fontSize: "12px", color: "#333", letterSpacing: "1px", textTransform: "uppercase" },
 };
 
-// ── Main App ──────────────────────────────────────────────────────────────────
 export default function MockMeAI() {
   const [step, setStep] = useState("input");
   const [url, setUrl] = useState("");
@@ -47,46 +49,25 @@ export default function MockMeAI() {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [messages, isTyping]);
 
-  // ── Analyze website via secure backend ─────────────────────────────────────
   const handleScrape = async () => {
     if (!url.trim()) return;
     setStep("scraping");
-
-    // Cycle status messages while the backend works
-    const statusSteps = [
-      "Scanning your website...",
-      "Analyzing business information...",
-      "Building your AI chatbot...",
-    ];
+    const statusSteps = ["Scanning your website...", "Analyzing business information...", "Building your AI chatbot..."];
     let i = 0;
     setStatusMsg(statusSteps[0]);
-    const timer = setInterval(() => {
-      i = (i + 1) % statusSteps.length;
-      setStatusMsg(statusSteps[i]);
-    }, 1800);
-
+    const timer = setInterval(() => { i = (i + 1) % statusSteps.length; setStatusMsg(statusSteps[i]); }, 1800);
     try {
-      const res = await fetch("/API/analyze", {
+      const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url.trim(), bizName }),
       });
-
       clearInterval(timer);
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to analyze website");
-      }
-
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Failed to analyze website"); }
       const data = await res.json();
       setBizContent(data.bizContent);
       setBizName(data.bizName);
-      setMessages([{
-        role: "bot",
-        text: data.welcomeMessage,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      }]);
+      setMessages([{ role: "bot", text: data.welcomeMessage, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }]);
       setStatusMsg("");
       setStep("demo");
     } catch (err) {
@@ -96,166 +77,102 @@ export default function MockMeAI() {
     }
   };
 
-  // ── Send chat message via secure backend ──────────────────────────────────
   const handleSend = async () => {
     if (!userInput.trim() || isTyping) return;
     const userMsg = userInput.trim();
     setUserInput("");
-
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const newMessages = [...messages, { role: "user", text: userMsg, time: now }];
     setMessages(newMessages);
     setIsTyping(true);
-
     try {
-      const history = newMessages.map((m) => ({
-        role: m.role === "bot" ? "assistant" : "user",
-        content: m.text,
-      }));
-
-      const res = await fetch("/API/chat", {
+      const history = newMessages.map((m) => ({ role: m.role === "bot" ? "assistant" : "user", content: m.text }));
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history, bizName, bizContent }),
       });
-
       const data = await res.json();
-      setMessages((prev) => [...prev, {
-        role: "bot",
-        text: data.reply || "Sorry, I had trouble with that. Please try again.",
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      }]);
+      setMessages((prev) => [...prev, { role: "bot", text: data.reply || "Sorry, I had trouble with that. Please try again.", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }]);
     } catch {
-      setMessages((prev) => [...prev, {
-        role: "bot",
-        text: "Sorry, I had a little trouble there. Could you try again?",
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      }]);
+      setMessages((prev) => [...prev, { role: "bot", text: "Sorry, I had a little trouble there. Could you try again?", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }]);
     }
     setIsTyping(false);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
-  };
+  const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+  const handleReset = () => { setStep("input"); setUrl(""); setBizName(""); setBizContent(""); setMessages([]); setStatusMsg(""); setUserInput(""); };
 
-  const handleReset = () => {
-    setStep("input"); setUrl(""); setBizName("");
-    setBizContent(""); setMessages([]); setStatusMsg(""); setUserInput("");
-  };
-
-  // ── Render ─────────────────────────────────────────────────────────────────────
   return (
-    <div style={styles.app}>
-      {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "8px" }}>
-        <div style={styles.logo}>MOCK<span style={styles.logoAccent}>ME</span>AI</div>
-        <p style={styles.tagline}>See your bot live in seconds</p>
-      </div>
+    <div style={S.app}>
+      <div style={S.logo}>MOCK<span style={S.logoAccent}>ME</span>AI</div>
+      <p style={S.tagline}>See your bot live in seconds</p>
 
-      {/* Step 1: URL Input */}
       {step === "input" && (
-        <div style={styles.card}>
-          <span style={styles.label}>Enter any business website URL</span>
-          <input style={styles.input} type="url" placeholder="https://example.com" value={url}
-            onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleScrape()} />
-          <input style={styles.input} type="text" placeholder="Business name (optional)" value={bizName}
-            onChange={(e) => setBizName(e.target.value)} />
-          <button style={{ ...styles.btn, ...(url.trim() ? {} : styles.btnDisabled) }}
-            onClick={handleScrape} disabled={!url.trim()}>
-            Build My AI Chatbot Demo →
-          </button>
-          <p style={styles.status}>{statusMsg}</p>
+        <div style={S.card}>
+          <span style={S.label}>Enter any business website URL</span>
+          <input style={S.input} type="url" placeholder="https://example.com" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleScrape()} />
+          <input style={S.input} type="text" placeholder="Business name (optional)" value={bizName} onChange={(e) => setBizName(e.target.value)} />
+          <button style={{ ...S.btn, ...(!url.trim() ? S.btnDisabled : {}) }} onClick={handleScrape} disabled={!url.trim()}>Build My AI Chatbot Demo →</button>
+          {statusMsg && <p style={S.status}>{statusMsg}</p>}
         </div>
       )}
 
-      {/* Step 2: Loading */}
       {step === "scraping" && (
-        <div style={{ ...styles.card, textAlign: "center" }}>
+        <div style={{ ...S.card, textAlign: "center" }}>
           <div style={{ fontSize: "40px", marginBottom: "16px" }}>⚡</div>
           <p style={{ fontSize: "16px", fontWeight: "600", color: "#fff", marginBottom: "8px" }}>Building your AI chatbot...</p>
-          <p style={styles.status}>{statusMsg}</p>
+          <p style={S.status}>{statusMsg}</p>
           <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "12px" }}>
-            {[0, 1, 2].map((i) => (
-              <div key={i} style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF6B00",
-                opacity: 0.4 + i * 0.3 }} />
-            ))}
+            {[0, 1, 2].map((i) => (<div key={i} style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF6200", opacity: 0.4 + i * 0.3 }} />))}
           </div>
         </div>
       )}
 
-      {/* Step 3: iPhone Demo */}
       {step === "demo" && (
         <>
-          <p style={styles.sectionTitle}>Your AI chatbot is live</p>
-
-          <div style={{ ...styles.card, maxWidth: "360px" }}>
-            <span style={styles.label}>Business detected</span>
-            <div style={styles.bizInfoBox}>{bizContent}</div>
+          <div style={{ ...S.card, maxWidth: "360px" }}>
+            <span style={S.label}>Business detected</span>
+            <div style={S.bizInfoBox}>{bizContent}</div>
           </div>
-
-          <div style={styles.phoneWrap}>
-            <div style={styles.phone}>
-              <div style={styles.phoneHeader}>
-                <div style={styles.phoneAvatar}>{bizName.charAt(0).toUpperCase()}</div>
+          <p style={S.sectionTitle}>Your AI chatbot is live</p>
+          <div style={S.phoneWrap}>
+            <div style={S.phone}>
+              <div style={S.phoneHeader}>
+                <div style={S.phoneAvatar}>{bizName.charAt(0).toUpperCase()}</div>
                 <div>
-                  <p style={styles.phoneBizName}>{bizName}</p>
-                  <p style={styles.phoneBizSub}>AI Assistant</p>
+                  <p style={S.phoneBizName}>{bizName}</p>
+                  <p style={S.phoneBizSub}>AI Assistant</p>
                 </div>
-                <div style={styles.phoneDot} />
+                <div style={S.phoneDot} />
               </div>
-
-              <div style={styles.chatArea} ref={chatRef}>
+              <div style={S.chatArea} ref={chatRef}>
                 {messages.map((msg, i) => (
                   <div key={i}>
-                    <div style={msg.role === "bot" ? styles.msgBot : styles.msgUser}>{msg.text}</div>
-                    <div style={{ ...styles.msgTime, textAlign: msg.role === "user" ? "right" : "left" }}>
-                      {msg.time}
-                    </div>
+                    <div style={msg.role === "bot" ? S.msgBot : S.msgUser}>{msg.text}</div>
+                    <div style={{ ...S.msgTime, textAlign: msg.role === "user" ? "right" : "left" }}>{msg.time}</div>
                   </div>
                 ))}
-                {isTyping && (
-                  <div style={styles.msgBot}><span style={{ color: "#FF6B00" }}>● ● ●</span></div>
-                )}
+                {isTyping && <div style={S.msgBot}><span style={{ color: "#FF6200" }}>● ● ●</span></div>}
               </div>
-
-              <div style={styles.phoneInputRow}>
-                <input style={styles.phoneInput} placeholder="Type a message..." value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} />
-                <button style={styles.sendBtn} onClick={handleSend}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                    <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
-                  </svg>
+              <div style={S.phoneInputRow}>
+                <input style={S.phoneInput} placeholder="Type a message..." value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} />
+                <button style={S.sendBtn} onClick={handleSend}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z" /></svg>
                 </button>
               </div>
-
-              <div style={styles.poweredBy}>Powered by MockMeAI · ShockWave Agency</div>
+              <div style={S.poweredBy}>Powered by MockMeAI · ShockWave Agency</div>
             </div>
           </div>
-
-          {/* CTA — captures leads after the demo */}
-          <div style={{ textAlign: "center", maxWidth: "360px", marginBottom: "16px" }}>
-            <p style={{ color: "#fff", fontSize: "15px", fontWeight: "600", marginBottom: "12px" }}>
-              Ready for the real thing for YOUR business? ⚡
-            </p>
-            <a href="https://shockwaveagency.com#contact"
-              style={{ display: "inline-block", background: "#FF6B00", color: "#fff", textDecoration: "none",
-                padding: "14px 32px", borderRadius: "50px", fontWeight: "700", fontSize: "14px",
-                letterSpacing: "0.5px", marginBottom: "16px" }}>
-              Claim Your Free Trial ⚡
-            </a>
+          <div style={S.ctaBox}>
+            <p style={{ color: "#fff", fontSize: "15px", fontWeight: "600", marginBottom: "12px" }}>Ready for the real thing for YOUR business? ⚡</p>
+            <a href="https://shockwaveagency.com#contact" style={S.ctaBtn}>Claim Your Free Trial ⚡</a>
           </div>
-
-          <button style={{ ...styles.btn, maxWidth: "360px", background: "transparent",
-            border: "1px solid #2A2A2A", color: "#888" }} onClick={handleReset}>
-            ← Try Another Website
-          </button>
+          <button style={S.resetBtn} onClick={handleReset}>← Try Another Website</button>
         </>
       )}
 
-      <p style={{ marginTop: "40px", fontSize: "12px", color: "#333", letterSpacing: "1px", textTransform: "uppercase" }}>
-        ShockWave Agency · ShockWaveAgency.com
-      </p>
+      <p style={S.footer}>ShockWave Agency · ShockWaveAgency.com</p>
     </div>
   );
 }

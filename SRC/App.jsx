@@ -66,7 +66,7 @@ export default function MockMeAI() {
     }, 1800);
 
     try {
-      const res = await fetch("/api/analyze", {
+      const res = await fetch("/API/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url.trim(), bizName }),
@@ -113,7 +113,7 @@ export default function MockMeAI() {
         content: m.text,
       }));
 
-      const res = await fetch("/api/chat", {
+      const res = await fetch("/API/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history, bizName, bizContent }),

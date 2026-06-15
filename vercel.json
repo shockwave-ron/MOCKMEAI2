@@ -1,14 +1,23 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "ALLOWALL" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
-      ]
-    }
-  ]
+"buildCommand": "npm run build",
+"outputDirectory": "dist",
+"framework": "vite",
+"functions": {
+"API/*.js": {
+"runtime": "nodejs20.x"
+}
+},
+"rewrites": [
+{ "source": "/api/analyze", "destination": "/API/analyze" },
+{ "source": "/api/chat", "destination": "/API/chat" }
+],
+"headers": [
+{
+"source": "/(.*)",
+"headers": [
+{ "key": "X-Frame-Options", "value": "ALLOWALL" },
+{ "key": "Access-Control-Allow-Origin", "value": "*" }
+]
+}
+]
 }

@@ -2,11 +2,6 @@
 "buildCommand": "npm run build",
 "outputDirectory": "dist",
 "framework": "vite",
-"functions": {
-"API/*.js": {
-"runtime": "nodejs20.x"
-}
-},
 "rewrites": [
 { "source": "/api/analyze", "destination": "/API/analyze" },
 { "source": "/api/chat", "destination": "/API/chat" }

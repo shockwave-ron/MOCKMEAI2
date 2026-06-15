@@ -1,18 +1,8 @@
 {
-"buildCommand": "npm run build",
-"outputDirectory": "dist",
-"framework": "vite",
-"rewrites": [
-{ "source": "/api/analyze", "destination": "/API/analyze" },
-{ "source": "/api/chat", "destination": "/API/chat" }
-],
-"headers": [
-{
-"source": "/(.*)",
-"headers": [
-{ "key": "X-Frame-Options", "value": "ALLOWALL" },
-{ "key": "Access-Control-Allow-Origin", "value": "*" }
-]
-}
-]
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ]
 }

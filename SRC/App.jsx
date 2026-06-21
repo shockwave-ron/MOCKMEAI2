@@ -41,6 +41,9 @@ const S = {
   footer: { marginTop: "40px", fontSize: "12px", color: "#bbb", letterSpacing: "1px", textTransform: "uppercase" },
 };
 
+const MAX_MESSAGES = 15; // cost control — caps Claude API calls per demo session
+const LINK_LIFETIME_HOURS = 24; // demo link expires this many hours after first use
+
 export default function MockMeAI() {
   const [step, setStep] = useState("input");
   const [url, setUrl] = useState("");
@@ -50,11 +53,79 @@ export default function MockMeAI() {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [expired, setExpired] = useState(false);
   const chatRef = useRef(null);
+
+  // Build a unique storage key per demo link so expiration tracking doesn't
+  // collide across different prospects using the same deployed app.
+  const linkKey = (() => {
+    const params = new URLSearchParams(window.location.search);
+    const u = params.get("url") || "";
+    const n = params.get("name") || "";
+    return `mockmeai_first_open_${u}_${n}`;
+  })();
+
+  // On load: check link params for auto-scrape, and check expiration.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paramUrl = params.get("url");
+    const paramName = params.get("name");
+
+    if (!paramUrl) return; // no params — show normal input screen
+
+    // Check expiration — first time this exact link was opened
+    const firstOpen = localStorage.getItem(linkKey);
+    const now = Date.now();
+    if (firstOpen) {
+      const elapsedHours = (now - parseInt(firstOpen, 10)) / (1000 * 60 * 60);
+      if (elapsedHours > LINK_LIFETIME_HOURS) {
+        setExpired(true);
+        return;
+      }
+    } else {
+      localStorage.setItem(linkKey, String(now));
+    }
+
+    // Auto-load the demo for this business
+    setUrl(decodeURIComponent(paramUrl));
+    if (paramName) setBizName(decodeURIComponent(paramName.replace(/\+/g, " ")));
+    autoScrape(decodeURIComponent(paramUrl), paramName ? decodeURIComponent(paramName.replace(/\+/g, " ")) : "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [messages, isTyping]);
+
+  // Same scrape logic as handleScrape, but callable directly with explicit args
+  // for the auto-load-from-URL case (state may not have updated yet).
+  const autoScrape = async (scrapeUrl, scrapeName) => {
+    if (!scrapeUrl.trim()) return;
+    setStep("scraping");
+    const statusSteps = ["Scanning your website...", "Analyzing business information...", "Building your AI chatbot..."];
+    let i = 0;
+    setStatusMsg(statusSteps[0]);
+    const timer = setInterval(() => { i = (i + 1) % statusSteps.length; setStatusMsg(statusSteps[i]); }, 1800);
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: scrapeUrl.trim(), bizName: scrapeName }),
+      });
+      clearInterval(timer);
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Failed to analyze website"); }
+      const data = await res.json();
+      setBizContent(data.bizContent);
+      setBizName(data.bizName);
+      setMessages([{ role: "bot", text: data.welcomeMessage, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }]);
+      setStatusMsg("");
+      setStep("demo");
+    } catch (err) {
+      clearInterval(timer);
+      setStatusMsg(`Error: ${err.message}. Try a different URL.`);
+      setStep("input");
+    }
+  };
 
   const handleScrape = async () => {
     if (!url.trim()) return;
@@ -86,6 +157,8 @@ export default function MockMeAI() {
 
   const handleSend = async () => {
     if (!userInput.trim() || isTyping) return;
+    const userMessageCount = messages.filter((m) => m.role === "user").length;
+    if (userMessageCount >= MAX_MESSAGES) return; // cap reached — input is disabled in UI
     const userMsg = userInput.trim();
     setUserInput("");
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -109,6 +182,25 @@ export default function MockMeAI() {
 
   const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
   const handleReset = () => { setStep("input"); setUrl(""); setBizName(""); setBizContent(""); setMessages([]); setStatusMsg(""); setUserInput(""); };
+
+  const userMessageCount = messages.filter((m) => m.role === "user").length;
+  const capReached = userMessageCount >= MAX_MESSAGES;
+
+  if (expired) {
+    return (
+      <div style={S.app}>
+        <div style={S.logoWrap}>
+          <span style={S.logoBolt}>⚡</span>
+          <span style={S.logo}>MOCK<span style={S.logoAccent}>ME</span>AI</span>
+        </div>
+        <div style={{ ...S.card, textAlign: "center", marginTop: "40px" }}>
+          <p style={{ fontSize: "16px", fontWeight: "700", color: "#111", marginBottom: "10px" }}>This Demo Link Has Expired</p>
+          <p style={{ fontSize: "13px", color: "#666", marginBottom: "20px" }}>Demo links are active for {LINK_LIFETIME_HOURS} hours. Want a fresh one?</p>
+          <a href="https://shockwaveagency.com#contact" style={S.ctaBtn}>Get a New Demo ⚡</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={S.app}>
@@ -179,18 +271,34 @@ export default function MockMeAI() {
                 {isTyping && <div style={S.msgBot}><span style={{ color: "#FF6200" }}>● ● ●</span></div>}
               </div>
               <div style={S.phoneInputRow}>
-                <input style={S.phoneInput} placeholder="Type a message..." value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} />
-                <button style={S.sendBtn} onClick={handleSend}>
+                <input
+                  style={S.phoneInput}
+                  placeholder={capReached ? "Demo limit reached" : "Type a message..."}
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={capReached}
+                />
+                <button style={{ ...S.sendBtn, ...(capReached ? S.btnDisabled : {}) }} onClick={handleSend} disabled={capReached}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z" /></svg>
                 </button>
               </div>
               <div style={S.poweredBy}>Powered by ShockWave Agency</div>
             </div>
           </div>
-          <div style={S.ctaBox}>
-            <p style={{ color: "#111", fontSize: "15px", fontWeight: "600", marginBottom: "12px" }}>Ready for the real thing for YOUR business? ⚡</p>
-            <a href="https://shockwaveagency.com#contact" style={S.ctaBtn}>Claim Your Free Trial ⚡</a>
-          </div>
+          {capReached && (
+            <div style={{ ...S.ctaBox, background: "#FFF7F0", border: "1px solid #FFD9B8", borderRadius: "12px", padding: "20px", maxWidth: "320px" }}>
+              <p style={{ color: "#111", fontSize: "14px", fontWeight: "700", marginBottom: "10px" }}>That's the demo! 🎉</p>
+              <p style={{ color: "#666", fontSize: "13px", marginBottom: "14px" }}>You've seen what your AI employee can do. Ready to put one to work for {bizName || "your business"}?</p>
+              <a href="https://shockwaveagency.com#contact" style={S.ctaBtn}>Claim Your Free Trial ⚡</a>
+            </div>
+          )}
+          {!capReached && (
+            <div style={S.ctaBox}>
+              <p style={{ color: "#111", fontSize: "15px", fontWeight: "600", marginBottom: "12px" }}>Ready for the real thing for YOUR business? ⚡</p>
+              <a href="https://shockwaveagency.com#contact" style={S.ctaBtn}>Claim Your Free Trial ⚡</a>
+            </div>
+          )}
           <button style={S.resetBtn} onClick={handleReset}>← Try Another Website</button>
         </>
       )}

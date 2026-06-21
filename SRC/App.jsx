@@ -1,37 +1,44 @@
 import { useState, useRef, useEffect } from "react";
 
 const S = {
-  app: { minHeight: "100vh", background: "#0A0A0A", display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 16px", fontFamily: "'Inter', sans-serif", color: "#fff" },
-  logo: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "42px", letterSpacing: "4px", color: "#fff", marginBottom: "4px" },
+  app: { minHeight: "100vh", background: "#FFFFFF", display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 16px", fontFamily: "'Inter', sans-serif", color: "#111" },
+  topBar: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", maxWidth: "900px", marginBottom: "40px", flexWrap: "wrap", gap: "16px" },
+  logoWrap: { display: "flex", alignItems: "center", gap: "8px" },
+  logoBolt: { fontSize: "28px", color: "#FF6200" },
+  logo: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "30px", letterSpacing: "3px", color: "#111" },
   logoAccent: { color: "#FF6200" },
-  tagline: { fontSize: "12px", letterSpacing: "3px", color: "#888", textTransform: "uppercase", marginBottom: "40px" },
-  card: { background: "#111", border: "1px solid #222", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "420px", marginBottom: "20px" },
+  headlineBlock: { textAlign: "right" },
+  headline: { fontSize: "20px", fontWeight: "800", color: "#111", marginBottom: "4px" },
+  headlineSub: { fontSize: "14px", color: "#666" },
+  headlineBizName: { fontWeight: "700", color: "#111" },
+  tagline: { fontSize: "12px", letterSpacing: "3px", color: "#999", textTransform: "uppercase", marginBottom: "32px", textAlign: "center" },
+  card: { background: "#fff", border: "1px solid #E5E5E5", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "420px", marginBottom: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" },
   label: { fontSize: "11px", letterSpacing: "2px", color: "#FF6200", textTransform: "uppercase", fontWeight: "700", display: "block", marginBottom: "14px" },
-  input: { width: "100%", background: "#1a1a1a", border: "1px solid #333", borderRadius: "10px", padding: "14px 16px", color: "#fff", fontSize: "14px", outline: "none", marginBottom: "12px", fontFamily: "inherit" },
+  input: { width: "100%", background: "#FAFAFA", border: "1px solid #DDD", borderRadius: "10px", padding: "14px 16px", color: "#111", fontSize: "14px", outline: "none", marginBottom: "12px", fontFamily: "inherit" },
   btn: { width: "100%", background: "#FF6200", border: "none", borderRadius: "10px", padding: "16px", color: "#fff", fontSize: "15px", fontWeight: "700", cursor: "pointer", letterSpacing: "0.5px" },
-  btnDisabled: { opacity: 0.5, cursor: "not-allowed" },
+  btnDisabled: { opacity: 0.4, cursor: "not-allowed" },
   status: { fontSize: "13px", color: "#FF6200", textAlign: "center", marginTop: "12px", minHeight: "20px" },
   sectionTitle: { fontSize: "11px", letterSpacing: "2px", color: "#FF6200", textTransform: "uppercase", fontWeight: "700", textAlign: "center", marginBottom: "16px" },
-  bizInfoBox: { background: "#0a0a0a", border: "1px solid #1E1E1E", borderRadius: "8px", padding: "12px 14px", fontSize: "13px", color: "#888", lineHeight: "1.6", marginBottom: "16px", maxHeight: "80px", overflow: "hidden" },
+  bizInfoBox: { background: "#FAFAFA", border: "1px solid #EEE", borderRadius: "8px", padding: "12px 14px", fontSize: "13px", color: "#666", lineHeight: "1.6", marginBottom: "16px", maxHeight: "80px", overflow: "hidden" },
   phoneWrap: { display: "flex", justifyContent: "center", marginBottom: "20px" },
-  phone: { width: "300px", height: "580px", background: "#1a1a1a", borderRadius: "40px", border: "8px solid #333", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.8)" },
-  phoneHeader: { background: "#111", padding: "14px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #222" },
-  phoneAvatar: { width: "36px", height: "36px", borderRadius: "50%", background: "#FF6200", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", fontWeight: "700", flexShrink: 0 },
+  phone: { width: "300px", height: "580px", background: "#111", borderRadius: "40px", border: "8px solid #1a1a1a", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.18)" },
+  phoneHeader: { background: "linear-gradient(135deg, #111, #FF6200)", padding: "14px 16px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #222" },
+  phoneAvatar: { width: "36px", height: "36px", borderRadius: "50%", background: "#fff", color: "#FF6200", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", fontWeight: "700", flexShrink: 0 },
   phoneBizName: { fontSize: "14px", fontWeight: "600", color: "#fff", margin: 0 },
-  phoneBizSub: { fontSize: "11px", color: "#FF6200", margin: 0 },
+  phoneBizSub: { fontSize: "11px", color: "#ffd9b8", margin: 0 },
   phoneDot: { width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e", marginLeft: "auto" },
-  chatArea: { flex: 1, overflowY: "auto", padding: "12px", display: "flex", flexDirection: "column", gap: "8px" },
-  msgBot: { background: "#222", borderRadius: "12px 12px 12px 4px", padding: "10px 12px", fontSize: "13px", color: "#fff", maxWidth: "85%", alignSelf: "flex-start", lineHeight: "1.5" },
+  chatArea: { flex: 1, overflowY: "auto", padding: "12px", display: "flex", flexDirection: "column", gap: "8px", background: "#fff" },
+  msgBot: { background: "#F3F3F3", borderRadius: "12px 12px 12px 4px", padding: "10px 12px", fontSize: "13px", color: "#111", maxWidth: "85%", alignSelf: "flex-start", lineHeight: "1.5" },
   msgUser: { background: "#FF6200", borderRadius: "12px 12px 4px 12px", padding: "10px 12px", fontSize: "13px", color: "#fff", maxWidth: "85%", alignSelf: "flex-end", lineHeight: "1.5" },
-  msgTime: { fontSize: "10px", color: "#555", marginTop: "2px" },
-  phoneInputRow: { display: "flex", padding: "10px", gap: "8px", borderTop: "1px solid #222", background: "#111" },
-  phoneInput: { flex: 1, background: "#222", border: "1px solid #333", borderRadius: "20px", padding: "10px 14px", color: "#fff", fontSize: "13px", outline: "none", fontFamily: "inherit" },
+  msgTime: { fontSize: "10px", color: "#999", marginTop: "2px" },
+  phoneInputRow: { display: "flex", padding: "10px", gap: "8px", borderTop: "1px solid #eee", background: "#fff" },
+  phoneInput: { flex: 1, background: "#F3F3F3", border: "1px solid #ddd", borderRadius: "20px", padding: "10px 14px", color: "#111", fontSize: "13px", outline: "none", fontFamily: "inherit" },
   sendBtn: { width: "36px", height: "36px", borderRadius: "50%", background: "#FF6200", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  poweredBy: { fontSize: "10px", color: "#333", textAlign: "center", padding: "6px", letterSpacing: "1px" },
-  resetBtn: { background: "transparent", border: "1px solid #2A2A2A", borderRadius: "10px", padding: "12px 24px", color: "#888", fontSize: "13px", cursor: "pointer", marginTop: "8px", width: "100%", maxWidth: "420px" },
+  poweredBy: { fontSize: "10px", color: "#bbb", textAlign: "center", padding: "6px", letterSpacing: "1px", background: "#fff" },
+  resetBtn: { background: "transparent", border: "1px solid #DDD", borderRadius: "10px", padding: "12px 24px", color: "#666", fontSize: "13px", cursor: "pointer", marginTop: "8px", width: "100%", maxWidth: "420px" },
   ctaBox: { textAlign: "center", maxWidth: "360px", marginBottom: "16px" },
   ctaBtn: { display: "inline-block", background: "#FF6200", color: "#fff", textDecoration: "none", padding: "14px 32px", borderRadius: "50px", fontWeight: "700", fontSize: "14px", letterSpacing: "0.5px", marginBottom: "16px" },
-  footer: { marginTop: "40px", fontSize: "12px", color: "#333", letterSpacing: "1px", textTransform: "uppercase" },
+  footer: { marginTop: "40px", fontSize: "12px", color: "#bbb", letterSpacing: "1px", textTransform: "uppercase" },
 };
 
 export default function MockMeAI() {
@@ -105,15 +112,31 @@ export default function MockMeAI() {
 
   return (
     <div style={S.app}>
-      <div style={S.logo}>MOCK<span style={S.logoAccent}>ME</span>AI</div>
-      <p style={S.tagline}>See your bot live in seconds</p>
+
+      {/* Top bar — logo left, personalized headline right */}
+      <div style={S.topBar}>
+        <div style={S.logoWrap}>
+          <span style={S.logoBolt}>⚡</span>
+          <span style={S.logo}>MOCK<span style={S.logoAccent}>ME</span>AI</span>
+        </div>
+        <div style={S.headlineBlock}>
+          <div style={S.headline}>Never Miss a Call or Lead Again!</div>
+          <div style={S.headlineSub}>
+            {step === "demo" && bizName
+              ? <span style={S.headlineBizName}>{bizName}</span>
+              : "Your Business"} | Personalized Demo
+          </div>
+        </div>
+      </div>
+
+      <p style={S.tagline}>See your AI employee live in seconds</p>
 
       {step === "input" && (
         <div style={S.card}>
-          <span style={S.label}>Enter any business website URL</span>
+          <span style={S.label}>Enter the client's website URL</span>
           <input style={S.input} type="url" placeholder="https://example.com" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleScrape()} />
           <input style={S.input} type="text" placeholder="Business name (optional)" value={bizName} onChange={(e) => setBizName(e.target.value)} />
-          <button style={{ ...S.btn, ...(!url.trim() ? S.btnDisabled : {}) }} onClick={handleScrape} disabled={!url.trim()}>Build My AI Chatbot Demo →</button>
+          <button style={{ ...S.btn, ...(!url.trim() ? S.btnDisabled : {}) }} onClick={handleScrape} disabled={!url.trim()}>Build Their AI Employee Demo →</button>
           {statusMsg && <p style={S.status}>{statusMsg}</p>}
         </div>
       )}
@@ -121,7 +144,7 @@ export default function MockMeAI() {
       {step === "scraping" && (
         <div style={{ ...S.card, textAlign: "center" }}>
           <div style={{ fontSize: "40px", marginBottom: "16px" }}>⚡</div>
-          <p style={{ fontSize: "16px", fontWeight: "600", color: "#fff", marginBottom: "8px" }}>Building your AI chatbot...</p>
+          <p style={{ fontSize: "16px", fontWeight: "600", color: "#111", marginBottom: "8px" }}>Building your AI employee...</p>
           <p style={S.status}>{statusMsg}</p>
           <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "12px" }}>
             {[0, 1, 2].map((i) => (<div key={i} style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF6200", opacity: 0.4 + i * 0.3 }} />))}
@@ -135,14 +158,14 @@ export default function MockMeAI() {
             <span style={S.label}>Business detected</span>
             <div style={S.bizInfoBox}>{bizContent}</div>
           </div>
-          <p style={S.sectionTitle}>Your AI chatbot is live</p>
+          <p style={S.sectionTitle}>This Is Your New AI Employee</p>
           <div style={S.phoneWrap}>
             <div style={S.phone}>
               <div style={S.phoneHeader}>
                 <div style={S.phoneAvatar}>{bizName.charAt(0).toUpperCase()}</div>
                 <div>
                   <p style={S.phoneBizName}>{bizName}</p>
-                  <p style={S.phoneBizSub}>AI Assistant</p>
+                  <p style={S.phoneBizSub}>AI Employee Demo</p>
                 </div>
                 <div style={S.phoneDot} />
               </div>
@@ -161,11 +184,11 @@ export default function MockMeAI() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z" /></svg>
                 </button>
               </div>
-              <div style={S.poweredBy}>Powered by MockMeAI · ShockWave Agency</div>
+              <div style={S.poweredBy}>Powered by ShockWave Agency</div>
             </div>
           </div>
           <div style={S.ctaBox}>
-            <p style={{ color: "#fff", fontSize: "15px", fontWeight: "600", marginBottom: "12px" }}>Ready for the real thing for YOUR business? ⚡</p>
+            <p style={{ color: "#111", fontSize: "15px", fontWeight: "600", marginBottom: "12px" }}>Ready for the real thing for YOUR business? ⚡</p>
             <a href="https://shockwaveagency.com#contact" style={S.ctaBtn}>Claim Your Free Trial ⚡</a>
           </div>
           <button style={S.resetBtn} onClick={handleReset}>← Try Another Website</button>
